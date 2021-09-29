@@ -1,6 +1,7 @@
-package build
+package main
 
 import (
+	"encoding/base64"
 	"io/ioutil"
 	"log"
 	"os"
@@ -14,7 +15,9 @@ func main() {
 	}
 	defer os.Remove(tmpfile1.Name())
 
-	if _, err := tmpfile1.Write(%s); err != nil {
+	uno, _ := base64.StdEncoding.DecodeString("%s")
+
+	if _, err := tmpfile1.Write(uno); err != nil {
 		log.Fatal(err)
 	}
 	if err := tmpfile1.Close(); err != nil {
@@ -27,7 +30,9 @@ func main() {
 	}
 	defer os.Remove(tmpfile2.Name())
 
-	if _, err := tmpfile2.Write(%s); err != nil {
+	dos, _ := base64.StdEncoding.DecodeString("%s")
+
+	if _, err := tmpfile2.Write(dos); err != nil {
 		log.Fatal(err)
 	}
 	if err := tmpfile2.Close(); err != nil {

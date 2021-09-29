@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/base64"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -12,21 +13,22 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	data1 := string(first)
+	data1 := base64.StdEncoding.EncodeToString(first)
 
 	second, err := ioutil.ReadFile("programa2.exe")
 	if err != nil {
 		log.Fatal(err)
 	}
-	data2 := string(second)
+	data2 := base64.StdEncoding.EncodeToString(second)
 
-	data := fmt.Sprintf(`package build
+	data := fmt.Sprintf(`package main
 
 	import (
 		"io/ioutil"
 		"log"
 		"os"
 		"os/exec"
+		"encoding/base64"
 	)
 	
 	func main() {
@@ -35,8 +37,10 @@ func main() {
 			log.Fatal(err)
 		}
 		defer os.Remove(tmpfile1.Name())
+
+		uno, _ := base64.StdEncoding.DecodeString("%s")
 	
-		if _, err := tmpfile1.Write([]byte(%s)); err != nil {
+		if _, err := tmpfile1.Write(uno); err != nil {
 			log.Fatal(err)
 		}
 		if err := tmpfile1.Close(); err != nil {
@@ -48,8 +52,10 @@ func main() {
 			log.Fatal(err)
 		}
 		defer os.Remove(tmpfile2.Name())
+
+		dos, _ := base64.StdEncoding.DecodeString("%s")
 	
-		if _, err := tmpfile2.Write([]byte(%s)); err != nil {
+		if _, err := tmpfile2.Write(dos); err != nil {
 			log.Fatal(err)
 		}
 		if err := tmpfile2.Close(); err != nil {
