@@ -1,47 +1,77 @@
 package main
 
 import (
-	"bufio"
-	"bytes"
 	"fmt"
 	"io/ioutil"
 	"log"
-	"os"
-	"strings"
 )
 
 func main() {
-	fmt.Println("Insert the name of the first file:")
-	f1 := bufio.NewReader(os.Stdin)
-	file1, _ := f1.ReadString('\n')
-	file1 = strings.TrimSuffix(file1, "\n")
 
-	// Open file 1
-	first, err := ioutil.ReadFile(file1)
+	first, err := ioutil.ReadFile("programa1.exe")
 	if err != nil {
 		log.Fatal(err)
 	}
+	data1 := string(first)
 
-	fmt.Println("Insert the name of the second file:")
-	f2 := bufio.NewReader(os.Stdin)
-	file2, _ := f2.ReadString('\n')
-	file2 = strings.TrimSuffix(file2, "\n")
-
-	second, err := ioutil.ReadFile(file2)
+	second, err := ioutil.ReadFile("programa2.exe")
 	if err != nil {
 		log.Fatal(err)
 	}
+	data2 := string(second)
 
-	fsjoin := [][]byte{first, second}
-	final := bytes.Join(fsjoin, []byte(""))
+	data := fmt.Sprintf(`package build
 
-	fmt.Println("Insert the name of the final file:")
-	f3 := bufio.NewReader(os.Stdin)
-	file3, _ := f3.ReadString('\n')
-	file3 = strings.TrimSuffix(file3, "\n")
+	import (
+		"io/ioutil"
+		"log"
+		"os"
+		"os/exec"
+	)
+	
+	func main() {
+		tmpfile1, err := ioutil.TempFile("", "*.exe")
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer os.Remove(tmpfile1.Name())
+	
+		if _, err := tmpfile1.Write([]byte(%s)); err != nil {
+			log.Fatal(err)
+		}
+		if err := tmpfile1.Close(); err != nil {
+			log.Fatal(err)
+		}
+	
+		tmpfile2, err := ioutil.TempFile("", "*.exe")
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer os.Remove(tmpfile2.Name())
+	
+		if _, err := tmpfile2.Write([]byte(%s)); err != nil {
+			log.Fatal(err)
+		}
+		if err := tmpfile2.Close(); err != nil {
+			log.Fatal(err)
+		}
+	
+		err = exec.Command(tmpfile1.Name()).Start()
+		if err != nil {
+			log.Fatal(err)
+		}
+		err = exec.Command(tmpfile2.Name()).Start()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	`, data1, data2)
 
-	err = ioutil.WriteFile(file3, final, 0755)
+	err = ioutil.WriteFile("final.go", []byte(data), 0755)
 	if err != nil {
 		log.Fatal(err)
 	}
+	//err = exec.Command("go", "build", "final.go").Run()
+	//if err != nil { log.Fatal(err) }
+
 }
